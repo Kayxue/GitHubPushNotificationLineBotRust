@@ -1,12 +1,35 @@
 use actix_web::{
-    error::ErrorBadRequest, get, main, post, web::Json, App, Error, HttpRequest, HttpServer,
-    Responder,
+    error::{ErrorBadRequest, ErrorInternalServerError},
+    get, main, post,
+    web::Json,
+    App, Error, HttpRequest, HttpServer, Responder,
+};
+use dotenv::dotenv;
+use line_bot_sdk_rust::{
+    client::LINE,
+    line_messaging_api::{
+        apis::MessagingApiApi,
+        models::{BroadcastRequest, Message},
+    },
 };
 use serde_json::Value;
 use std::env;
 
+mod GitHub;
+use GitHub::RequestBody::*;
+
 #[post("/github")]
-async fn github(request: HttpRequest, body: Json<Value>) -> Result<impl Responder, Error> {
+async fn github(
+    request: HttpRequest,
+    body: Json<PushRequestBody>,
+) -> Result<impl Responder, Error> {
+    if let Err(e) = env::var("ACCESSTOKEN") {
+        return Err(ErrorInternalServerError(
+            "Can't get access token for Line Client",
+        ));
+    }
+    let client = LINE::new(env::var("ACCESSTOKEN").unwrap());
+
     if let Some(event) = request.headers().get("x-github-event") {
         if event != "push" {
             return Ok("Receieved");
@@ -14,12 +37,8 @@ async fn github(request: HttpRequest, body: Json<Value>) -> Result<impl Responde
     } else {
         return Err(ErrorBadRequest("Request is not from GitHub"));
     }
-    if let Some(commits) = body["commits"].as_array() {
-        for commit in commits {
-            //TODO: Handle commits data and send message
-        }
-    } else {
-        return Err(ErrorBadRequest("Can't extract commits from body"));
+    for commit in &body.commits {
+        //TODO: Handle commits data and send message
     }
     Ok("Finished")
 }
@@ -34,6 +53,9 @@ async fn main() -> std::io::Result<()> {
     //Enable actix logging
     env::set_var("RUST_LOG", "actix_web=debug,actix_server=info");
     env_logger::init();
+
+    //Load env
+    dotenv().ok();
 
     HttpServer::new(|| App::new().service(root).service(github))
         .bind(("localhost", 3000))?
