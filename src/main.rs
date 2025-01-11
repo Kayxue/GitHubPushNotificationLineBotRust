@@ -5,13 +5,9 @@ use actix_web::{
     App, Error, HttpRequest, HttpServer, Responder,
 };
 use dotenv::dotenv;
-use line_bot_sdk_rust::{
-    client::LINE,
-    line_messaging_api::{
-        apis::MessagingApiApi,
-        models::{flex_box::Layout, BroadcastRequest, FlexBox, FlexBubble, FlexContainer, FlexMessage, FlexText, Message},
-    },
-};
+use line_bot_sdk_rust::
+    client::LINE
+;
 use serde_json::Value;
 use std::env;
 
