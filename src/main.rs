@@ -9,7 +9,7 @@ use line_bot_sdk_rust::{
     client::LINE,
     line_messaging_api::{
         apis::MessagingApiApi,
-        models::{BroadcastRequest, Message},
+        models::{flex_box::Layout, BroadcastRequest, FlexBox, FlexBubble, FlexContainer, FlexMessage, FlexText, Message},
     },
 };
 use serde_json::Value;
@@ -40,6 +40,7 @@ async fn github(
     for commit in &body.commits {
         //TODO: Handle commits data and send message
     }
+    println!("{:?}", body);
     Ok("Finished")
 }
 

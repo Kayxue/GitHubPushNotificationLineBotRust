@@ -1,5 +1,5 @@
-use serde::{Serialize, Deserialize};
-use serde_json::{Value};
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
 
 pub mod RequestBody {
 
@@ -10,16 +10,16 @@ pub mod RequestBody {
         pub after: String,
         pub base_ref: Option<String>,
         pub before: String,
-        pub commits: Vec<Value>,
+        pub commits: Vec<Commit>,
         pub compare: String,
         pub created: bool,
         pub deleted: bool,
         pub enterprise: Option<Value>,
         pub forced: bool,
-        pub head_commit: Option<Value>,
+        pub head_commit: Option<Commit>,
         pub installation: Option<Value>,
         pub organization: Option<Value>,
-        pub pusher: Value,
+        pub pusher: User,
         #[serde(rename = "ref")]
         pub refs: String,
         pub repository: Value,
@@ -43,7 +43,7 @@ pub mod RequestBody {
 
     #[derive(Serialize, Deserialize, Debug)]
     pub struct User {
-        pub date:Option<String>,
+        pub date: Option<String>,
         pub name: String,
         pub email: Option<String>,
         pub username: Option<String>,
