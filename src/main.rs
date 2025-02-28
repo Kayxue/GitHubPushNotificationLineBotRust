@@ -227,7 +227,7 @@ async fn main() -> std::io::Result<()> {
     dotenv().ok();
 
     HttpServer::new(|| App::new().service(root).service(github))
-        .bind(("localhost", 3000))?
+        .bind(("0.0.0.0", 3000))?
         .run()
         .await
 }
