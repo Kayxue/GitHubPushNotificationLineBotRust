@@ -2,6 +2,9 @@ name: ci
 
 on:
   push:
+  pull_request:
+    types:
+      - closed
 
 # env:
 #   REGISTRY_IMAGE: ghcr.io/kayxue/githubpushnotificationlinebot
@@ -80,6 +83,11 @@ jobs:
       contents: read
       packages: write
     steps:
+      - name: Set image name
+        run: |
+          echo "REGISTRY_IMAGE=ghcr.io/${REGISTRY,,}" >> $GITHUB_ENV
+        env:
+          REGISTRY: '${{ github.repository }}'
       - name: Download digests
         uses: actions/download-artifact@v4
         with:
