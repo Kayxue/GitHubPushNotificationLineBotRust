@@ -31,7 +31,7 @@ async fn github(
     request: HttpRequest,
     body: Json<PushRequestBody>,
 ) -> Result<impl Responder, Error> {
-    if let Err(e) = env::var("ACCESSTOKEN") {
+    if let Err(_) = env::var("ACCESSTOKEN") {
         return Err(ErrorInternalServerError(
             "Can't get access token for Line Client",
         ));
