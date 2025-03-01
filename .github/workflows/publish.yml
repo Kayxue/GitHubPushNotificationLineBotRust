@@ -4,7 +4,7 @@ on:
   push:
 
 env:
-  REGISTRY_IMAGE: ghcr.io/kayxue/githubpushnotificationlinebot:latest
+  REGISTRY_IMAGE: ghcr.io/kayxue/githubpushnotificationlinebot
 
 jobs:
   build:
