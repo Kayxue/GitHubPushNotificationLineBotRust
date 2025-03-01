@@ -27,11 +27,17 @@ jobs:
           platform=${{ matrix.platform }}
           echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV
 
+      - name: Set image name
+        run: |
+          echo "REGISTRY_IMAGE=${REGISTRY,,}" >> $GITHUB_ENV
+        env:
+          REGISTRY: '${{ github.repository }}'
+
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
         with:
-          ghcr.io/${{ github.repository }}
+          images: ${{ env.REGISTRY_IMAGE }}
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -49,7 +55,7 @@ jobs:
         with:
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
-          tags: ghcr.io/${{ github.repository }}
+          tags: ${{ env.REGISTRY_IMAGE }}
           outputs: type=image,push-by-digest=true,name-canonical=true,push=true
 
       - name: Export digest
@@ -95,7 +101,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}
+          images: ${{ env.REGISTRY_IMAGE }}
           tags: |
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
             type=ref,event=branch,enable=${{ github.ref != format('refs/heads/{0}', github.event.repository.default_branch) }}
@@ -104,8 +110,8 @@ jobs:
         working-directory: ${{ runner.temp }}/digests
         run: |
           docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-            $(printf 'ghcr.io/${{ github.repository }}@sha256:%s ' *)
+            $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)
 
       - name: Inspect image
         run: |
-          docker buildx imagetools inspect ghcr.io/${{ github.repository }}:${{ steps.meta.outputs.version }}
+          docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:${{ steps.meta.outputs.version }}
