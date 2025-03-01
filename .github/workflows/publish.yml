@@ -3,7 +3,16 @@ on: [push]
 
 jobs:
   publish-docker-image:
-    runs-on: ubuntu-24.04-arm
+    runs-on: ${{ matrix.builder }}
+
+    strategy:
+      matrix:
+        include:
+          - builder: ubuntu-latest
+            platform: linux/amd64
+          - builder: ubuntu-24.04-arm
+            platform: linux/arm64
+
     permissions:
       contents: read
       packages: write
@@ -29,6 +38,6 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          platforms: linux/arm64,linux/amd64
+          platforms: ${{ matrix.platform }}
           push: true
           tags: ghcr.io/kayxue/githubpushnotificationlinebot:latest
