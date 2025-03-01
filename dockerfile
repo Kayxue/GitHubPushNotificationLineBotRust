@@ -1,4 +1,5 @@
-FROM rust:alpine AS build
+ARG ARCH=
+FROM ${ARCH}rust:alpine AS build
 WORKDIR /src
 COPY . .
 
