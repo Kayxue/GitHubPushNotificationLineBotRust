@@ -14,7 +14,7 @@ cargo run
 ## Docker Image Support Architecture
 * `linux/arm64`
 * `linux/amd64`
-## Run in Docker Container
+## Run the Docker Image
 ```sh
 docker run --name notificationlinebot -p 3000:3000 -e ACCESSTOKEN=<LINE_BOT_ACCESS_TOKEN> -d ghcr.io/kayxue/githubpushnotificationlinebotrust:latest
 ```
