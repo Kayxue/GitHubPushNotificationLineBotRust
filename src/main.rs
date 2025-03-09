@@ -1,9 +1,3 @@
-use actix_web::{
-    error::{ErrorBadRequest, ErrorInternalServerError},
-    get, main, post,
-    web::Json,
-    App, Error, HttpRequest, HttpServer, Responder,
-};
 use dotenv::dotenv;
 use line_bot_sdk_rust::{
     client::LINE,
@@ -18,6 +12,15 @@ use line_bot_sdk_rust::{
         },
     },
 };
+use ntex::{
+    main,
+    web::{
+        error::{ErrorBadRequest, ErrorInternalServerError},
+        get, post,
+        types::Json,
+        App, HttpRequest, HttpServer, Responder, WebResponseError,
+    },
+};
 use std::env;
 
 use chrono::prelude::*;
@@ -29,8 +32,8 @@ use GitHub::RequestBody::*;
 #[post("/github")]
 async fn github(
     request: HttpRequest,
-    body: Json<PushRequestBody>,
-) -> Result<impl Responder, Error> {
+    body: Option<Json<PushRequestBody>>,
+) -> Result<impl Responder, impl WebResponseError> {
     if let Err(_) = env::var("ACCESSTOKEN") {
         return Err(ErrorInternalServerError(
             "Can't get access token for Line Client",
@@ -44,7 +47,7 @@ async fn github(
     } else {
         return Err(ErrorBadRequest("Request is not from GitHub"));
     }
-    for commit in &body.commits {
+    for commit in &body.unwrap().commits {
         let request = BroadcastRequest {
             messages: vec![Message::Flex(FlexMessage {
                 alt_text: format!("{} pushed his/her changes", commit.author.name).to_owned(),
@@ -220,7 +223,7 @@ async fn root() -> impl Responder {
 #[main]
 async fn main() -> std::io::Result<()> {
     //Enable actix logging
-    env::set_var("RUST_LOG", "actix_web=debug,actix_server=info");
+    env::set_var("RUST_LOG", "ntex=debug,ntex_server=info");
     env_logger::init();
 
     //Load env

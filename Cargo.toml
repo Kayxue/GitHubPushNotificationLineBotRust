@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-actix-web = "4.9.0"
+ntex = { version = "2.0", features = ["tokio"] }
 chrono = "0.4.40"
 chrono-tz = "0.10.1"
 dotenv = "0.15.0"
