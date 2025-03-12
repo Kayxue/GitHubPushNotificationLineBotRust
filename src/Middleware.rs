@@ -6,7 +6,7 @@ use xitca_web::{
     WebContext,
 };
 
-use crate::CustomError::BadRequest;
+use crate::CustomError::{BadRequest, InternalServerError};
 use std::error;
 
 pub async fn error_handler<S, C>(s: &S, mut ctx: WebContext<'_, C>) -> Result<WebResponse, Error>
@@ -27,6 +27,12 @@ where
             // *. this is a runtime feature and not reinforced at compile time.
             if let Some(_e) = e.upcast().downcast_ref::<BadRequest>() {
                 return (_e.message.to_owned(), StatusCode::BAD_REQUEST)
+                    .respond(ctx)
+                    .await;
+            }
+
+            if let Some(_e) = e.upcast().downcast_ref::<InternalServerError>() {
+                return (_e.message.to_owned(), StatusCode::INTERNAL_SERVER_ERROR)
                     .respond(ctx)
                     .await;
             }

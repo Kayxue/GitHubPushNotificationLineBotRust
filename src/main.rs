@@ -22,6 +22,7 @@ use xitca_web::{
     error::Error,
     handler::{json::LazyJson, FromRequest},
     http::{HeaderName, HeaderValue},
+    middleware::Logger,
     App, WebContext,
 };
 
@@ -32,7 +33,7 @@ mod GitHub;
 use GitHub::RequestBody::*;
 
 mod CustomError;
-use CustomError::BadRequest;
+use CustomError::{BadRequest, InternalServerError};
 
 mod Middleware;
 
@@ -68,7 +69,7 @@ async fn github(
     }
     let client = LINE::new(env::var("ACCESSTOKEN").unwrap());
     if let None = body {
-        return Err(BadRequest::new("Invalid request body").into());
+        return Err(InternalServerError::new("Invalid request body").into());
     }
     let validBody = body.unwrap();
     let PushRequestBody { commits, .. } = validBody.deserialize()?;
@@ -251,6 +252,7 @@ async fn main() -> std::io::Result<()> {
         .at_typed(root)
         .at_typed(github)
         .enclosed_fn(Middleware::error_handler)
+        .enclosed(Logger::new())
         .serve()
         .bind(("0.0.0.0", 3000))?
         .run()

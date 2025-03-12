@@ -42,3 +42,39 @@ impl<'r, C> Service<WebContext<'r, C>> for BadRequest {
         Service::call(&StatusCode::BAD_REQUEST, ctx).await
     }
 }
+
+#[derive(Debug)]
+pub struct InternalServerError {
+    pub message: String,
+}
+
+impl InternalServerError {
+    pub fn new(message: &str) -> Self {
+        InternalServerError {
+            message: message.to_owned(),
+        }
+    }
+}
+
+impl fmt::Display for InternalServerError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "InternalServerError: {}", self.message)
+    }
+}
+
+impl error::Error for InternalServerError {}
+
+impl From<InternalServerError> for Error {
+    fn from(err: InternalServerError) -> Self {
+        Self::from_service(err)
+    }
+}
+
+impl<'r, C> Service<WebContext<'r, C>> for InternalServerError {
+    type Response = WebResponse;
+    type Error = Infallible;
+
+    async fn call(&self, ctx: WebContext<'r, C>) -> Result<Self::Response, Self::Error> {
+        Service::call(&StatusCode::INTERNAL_SERVER_ERROR, ctx).await
+    }
+}
