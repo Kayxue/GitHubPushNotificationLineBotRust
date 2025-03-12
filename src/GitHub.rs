@@ -6,46 +6,46 @@ pub mod RequestBody {
     use super::*;
 
     #[derive(Serialize, Deserialize, Debug)]
-    pub struct PushRequestBody {
-        pub after: String,
-        pub base_ref: Option<String>,
-        pub before: String,
-        pub commits: Vec<Commit>,
-        pub compare: String,
+    pub struct PushRequestBody<'a> {
+        pub after: &'a str,
+        pub base_ref: Option<&'a str>,
+        pub before: &'a str,
+        pub commits: Vec<Commit<'a>>,
+        pub compare: &'a str,
         pub created: bool,
         pub deleted: bool,
         pub enterprise: Option<Value>,
         pub forced: bool,
-        pub head_commit: Option<Commit>,
+        pub head_commit: Option<Commit<'a>>,
         pub installation: Option<Value>,
         pub organization: Option<Value>,
-        pub pusher: User,
+        pub pusher: User<'a>,
         #[serde(rename = "ref")]
-        pub refs: String,
+        pub refs: &'a str,
         pub repository: Value,
         pub sender: Option<Value>,
     }
 
     #[derive(Serialize, Deserialize, Debug)]
-    pub struct Commit {
-        pub added: Vec<String>,
-        pub author: User,
-        pub committer: User,
+    pub struct Commit<'a> {
+        pub added: Vec<&'a str>,
+        pub author: User<'a>,
+        pub committer: User<'a>,
         pub distinct: bool,
-        pub id: String,
-        pub message: String,
-        pub modified: Vec<String>,
-        pub removed: Vec<String>,
-        pub timestamp: String,
-        pub tree_id: String,
-        pub url: String,
+        pub id: &'a str,
+        pub message: &'a str,
+        pub modified: Vec<&'a str>,
+        pub removed: Vec<&'a str>,
+        pub timestamp: &'a str,
+        pub tree_id: &'a str,
+        pub url: &'a str,
     }
 
     #[derive(Serialize, Deserialize, Debug)]
-    pub struct User {
-        pub date: Option<String>,
-        pub name: String,
-        pub email: Option<String>,
-        pub username: Option<String>,
+    pub struct User<'a> {
+        pub date: Option<&'a str>,
+        pub name: &'a str,
+        pub email: Option<&'a str>,
+        pub username: Option<&'a str>,
     }
 }
