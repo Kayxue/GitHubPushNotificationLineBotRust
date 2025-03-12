@@ -4,7 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-ntex = { version = "2", features = ["tokio"] }
+xitca-web = { version = "*", features = ["logger", "json", "codegen"] }
+tokio = { version = "1", features = ["full"] }
 chrono = "0.4.40"
 chrono-tz = "0.10.1"
 dotenv = "0.15.0"

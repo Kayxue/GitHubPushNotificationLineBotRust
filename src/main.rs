@@ -12,16 +12,10 @@ use line_bot_sdk_rust::{
         },
     },
 };
-use ntex::{
-    main,
-    web::{
-        error::{ErrorBadRequest, ErrorInternalServerError},
-        get, post,
-        types::Json,
-        App, HttpRequest, HttpServer, Responder, WebResponseError,
-    },
-};
 use std::env;
+use xitca_web::{
+    codegen::route, error::Error, handler::json::LazyJson, http::HeaderMap, middleware::Logger, App
+};
 
 use chrono::prelude::*;
 use chrono_tz::Asia::Taipei;
@@ -29,25 +23,34 @@ use chrono_tz::Asia::Taipei;
 mod GitHub;
 use GitHub::RequestBody::*;
 
-#[post("/github")]
+mod CustomError;
+use CustomError::BadRequest;
+use CustomError::InternalServerError;
+
+mod Middleware;
+
+#[route("/github",method = post)]
 async fn github(
-    request: HttpRequest,
-    body: Option<Json<PushRequestBody>>,
-) -> Result<impl Responder, impl WebResponseError> {
-    if let Err(_) = env::var("ACCESSTOKEN") {
-        return Err(ErrorInternalServerError(
-            "Can't get access token for Line Client",
-        ));
-    }
-    let client = LINE::new(env::var("ACCESSTOKEN").unwrap());
-    if let Some(event) = request.headers().get("x-github-event") {
+    header: HeaderMap,
+    body: Option<LazyJson<PushRequestBody<'_>>>,
+) -> Result<&'static str, Error> {
+    if let Some(event) = header.get("x-github-event") {
         if event != "push" {
             return Ok("Receieved");
         }
     } else {
-        return Err(ErrorBadRequest("Request is not from GitHub"));
+        return Err(BadRequest::new("Request is not from GitHub").into());
     }
-    for commit in &body.unwrap().commits {
+    if let Err(_) = env::var("ACCESSTOKEN") {
+        return Err(InternalServerError::new("Can't get access token for Line Client").into());
+    }
+    let client = LINE::new(env::var("ACCESSTOKEN").unwrap());
+    if let None = body {
+        return Err(BadRequest::new("Invalid request body").into());
+    }
+    let validBody = body.unwrap();
+    let PushRequestBody { commits, .. } = validBody.deserialize()?;
+    for commit in &commits {
         let request = BroadcastRequest {
             messages: vec![Message::Flex(FlexMessage {
                 alt_text: format!("{} pushed his/her changes", commit.author.name).to_owned(),
@@ -203,33 +206,31 @@ async fn github(
             })],
             notification_disabled: Some(false),
         };
-        // let res = serde_json::to_string_pretty(&request.messages[0])
-        //     .map_err(|e| ErrorBadRequest(e.to_string()))?;
-        // println!("res: {res}");
-        let result = client.messaging_api_client.broadcast(request, None).await;
+        let _result = client.messaging_api_client.broadcast(request, None).await;
         // match result {
-        //     Ok(r) => println!("{:#?}", r),
-        //     Err(e) => println!("{:#?}", e),
+        //     Ok(r) => println!("OK{:#?}", r),
+        //     Err(e) => println!("Error{:#?}", e),
         // }
     }
     Ok("Finished")
 }
 
-#[get("/")]
-async fn root() -> impl Responder {
+#[route("/",method = get)]
+async fn root() -> &'static str {
     "Hello World"
 }
 
-#[main]
+#[tokio::main]
 async fn main() -> std::io::Result<()> {
-    //Enable actix logging
-    env::set_var("RUST_LOG", "ntex=debug,ntex_server=info");
-    env_logger::init();
-
     //Load env
     dotenv().ok();
 
-    HttpServer::new(|| App::new().service(root).service(github))
+    App::new()
+        .at_typed(root)
+        .at_typed(github)
+        .enclosed_fn(Middleware::error_handler)
+        .enclosed(Logger::new())
+        .serve()
         .bind(("0.0.0.0", 3000))?
         .run()
         .await
