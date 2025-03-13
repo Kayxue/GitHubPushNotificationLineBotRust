@@ -88,7 +88,7 @@ jobs:
     steps:
       - name: Set image name
         run: |
-          echo "REGISTRY_IMAGE=ghcr.io/${REGISTRY,,}" >> $GITHUB_ENV
+          echo "REGISTRY_IMAGE=ghcr.io/${REGISTRY,,}nightly" >> $GITHUB_ENV
         env:
           REGISTRY: '${{ github.repository }}'
       - name: Download digests
