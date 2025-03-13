@@ -14,7 +14,7 @@ use line_bot_sdk_rust::{
 };
 use std::env;
 use xitca_web::{
-    codegen::route, error::Error, handler::json::LazyJson, http::HeaderMap, middleware::Logger, App
+    codegen::route, error::Error, handler::json::LazyJson, http::HeaderMap, middleware::Logger, App,
 };
 
 use chrono::prelude::*;
@@ -52,25 +52,26 @@ async fn github(
     let PushRequestBody { commits, .. } = validBody.deserialize()?;
     for commit in &commits {
         let request = BroadcastRequest {
-            messages: vec![Message::Flex(FlexMessage {
+            messages: vec![Message::FlexMessage(FlexMessage {
                 alt_text: format!("{} pushed his/her changes", commit.author.name).to_owned(),
-                contents: Box::new(FlexContainer::Bubble(FlexBubble {
-                    body: Some(Box::new(FlexBox::new(
-                        Layout::Vertical,
-                        vec![
-                            FlexComponent::Text(FlexText {
+                contents: Box::new(FlexContainer::FlexBubble(FlexBubble {
+                    body: Some(Box::new(FlexBox{
+                        r#type: Some("box".to_owned()),
+                        layout:Layout::Vertical,
+                        contents:vec![
+                            FlexComponent::FlexText(FlexText {
                                 text: Some("Commit Pushed".to_owned()),
                                 weight: Some(Weight::Bold),
                                 size: Some("xl".to_owned()),
                                 wrap: Some(true),
                                 ..Default::default()
                             }),
-                            FlexComponent::Box(FlexBox {
+                            FlexComponent::FlexBox(FlexBox {
                                 layout: Layout::Vertical,
                                 margin: Some("lg".to_owned()),
                                 spacing: Some("sm".to_owned()),
                                 contents: vec![
-                                    FlexComponent::Text(FlexText {
+                                    FlexComponent::FlexText(FlexText {
                                         text: Some(
                                             format!(
                                                 "{} pushed his/her change to the repo",
@@ -81,18 +82,18 @@ async fn github(
                                         wrap: Some(true),
                                         ..Default::default()
                                     }),
-                                    FlexComponent::Box(FlexBox {
+                                    FlexComponent::FlexBox(FlexBox {
                                         layout: Layout::Baseline,
                                         spacing: Some("sm".to_owned()),
                                         contents: vec![
-                                            FlexComponent::Text(FlexText {
+                                            FlexComponent::FlexText(FlexText {
                                                 text: Some("ID".to_owned()),
                                                 color: Some("#aaaaaa".to_owned()),
                                                 size: Some("sm".to_owned()),
                                                 flex: Some(2),
                                                 ..Default::default()
                                             }),
-                                            FlexComponent::Text(FlexText {
+                                            FlexComponent::FlexText(FlexText {
                                                 text: Some(commit.id[..7].to_owned()),
                                                 wrap: Some(false),
                                                 color: Some("#666666".to_owned()),
@@ -103,11 +104,11 @@ async fn github(
                                         ],
                                         ..Default::default()
                                     }),
-                                    FlexComponent::Box(FlexBox {
+                                    FlexComponent::FlexBox(FlexBox {
                                         layout: Layout::Baseline,
                                         spacing: Some("sm".to_owned()),
                                         contents: vec![
-                                            FlexComponent::Text(FlexText {
+                                            FlexComponent::FlexText(FlexText {
                                                 text: Some("Committer".to_owned()),
                                                 color: Some("#aaaaaa".to_owned()),
                                                 size: Some("sm".to_owned()),
@@ -115,7 +116,7 @@ async fn github(
                                                 wrap: Some(true),
                                                 ..Default::default()
                                             }),
-                                            FlexComponent::Text(FlexText {
+                                            FlexComponent::FlexText(FlexText {
                                                 text: Some(commit.author.name.to_owned()),
                                                 color: Some("#666666".to_owned()),
                                                 size: Some("sm".to_owned()),
@@ -125,11 +126,11 @@ async fn github(
                                         ],
                                         ..Default::default()
                                     }),
-                                    FlexComponent::Box(FlexBox {
+                                    FlexComponent::FlexBox(FlexBox {
                                         layout: Layout::Baseline,
                                         spacing: Some("sm".to_owned()),
                                         contents: vec![
-                                            FlexComponent::Text(FlexText {
+                                            FlexComponent::FlexText(FlexText {
                                                 text: Some("Message".to_owned()),
                                                 color: Some("#aaaaaa".to_owned()),
                                                 size: Some("sm".to_owned()),
@@ -137,7 +138,7 @@ async fn github(
                                                 wrap: Some(true),
                                                 ..Default::default()
                                             }),
-                                            FlexComponent::Text(FlexText {
+                                            FlexComponent::FlexText(FlexText {
                                                 text: Some(commit.message.to_owned()),
                                                 color: Some("#666666".to_owned()),
                                                 size: Some("sm".to_owned()),
@@ -148,11 +149,11 @@ async fn github(
                                         ],
                                         ..Default::default()
                                     }),
-                                    FlexComponent::Box(FlexBox {
+                                    FlexComponent::FlexBox(FlexBox {
                                         layout: Layout::Baseline,
                                         spacing: Some("sm".to_owned()),
                                         contents: vec![
-                                            FlexComponent::Text(FlexText {
+                                            FlexComponent::FlexText(FlexText {
                                                 text: Some("Time".to_owned()),
                                                 color: Some("#aaaaaa".to_owned()),
                                                 size: Some("sm".to_owned()),
@@ -160,7 +161,7 @@ async fn github(
                                                 wrap: Some(true),
                                                 ..Default::default()
                                             }),
-                                            FlexComponent::Text(FlexText {
+                                            FlexComponent::FlexText(FlexText {
                                                 text: Some(
                                                     commit
                                                         .timestamp
@@ -183,15 +184,16 @@ async fn github(
                                 ..Default::default()
                             }),
                         ],
-                    ))),
+                    ..Default::default()
+                })),
                     footer: Some(Box::new(FlexBox {
                         r#type: Some("box".to_owned()),
                         layout: Layout::Vertical,
                         spacing: Some("sm".to_owned()),
-                        contents: vec![FlexComponent::Button(FlexButton {
+                        contents: vec![FlexComponent::FlexButton(FlexButton {
                             style: Some(Style::Link),
                             height: Some(Height::Sm),
-                            action: Box::new(Action::Uri(UriAction {
+                            action: Box::new(Action::UriAction(UriAction {
                                 label: Some("Check the commit".to_owned()),
                                 uri: Some(commit.url.to_owned()),
                                 ..Default::default()
@@ -207,7 +209,7 @@ async fn github(
             notification_disabled: Some(false),
         };
         let _result = client.messaging_api_client.broadcast(request, None).await;
-        // match result {
+        // match _result {
         //     Ok(r) => println!("OK{:#?}", r),
         //     Err(e) => println!("Error{:#?}", e),
         // }
