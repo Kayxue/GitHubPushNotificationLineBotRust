@@ -3,7 +3,7 @@ FROM --platform=$BUILDPLATFORM rust:alpine AS build
 WORKDIR /src
 COPY . .
 
-RUN USER=root apk add pkgconfig openssl-dev libc-dev ca-certificates libcrypto3
+RUN USER=root apk add pkgconfig openssl-dev libc-dev ca-certificates libssl-dev
 RUN cargo build --release
 
 FROM scratch
