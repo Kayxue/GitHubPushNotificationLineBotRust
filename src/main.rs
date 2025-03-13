@@ -65,11 +65,11 @@ async fn github(
         return Ok("Receieved");
     }
     if let Err(_) = env::var("ACCESSTOKEN") {
-        return Err(BadRequest::new("Can't get access token for Line Client").into());
+        return Err(InternalServerError::new("Can't get access token for Line Client").into());
     }
     let client = LINE::new(env::var("ACCESSTOKEN").unwrap());
     if let None = body {
-        return Err(InternalServerError::new("Invalid request body").into());
+        return Err(BadRequest::new("Invalid request body").into());
     }
     let validBody = body.unwrap();
     let PushRequestBody { commits, .. } = validBody.deserialize()?;
