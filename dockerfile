@@ -1,5 +1,5 @@
 ARG BUILDPLATFORM
-FROM --platform=$BUILDPLATFORM rust:alpine AS build
+FROM --platform=$BUILDPLATFORM rustlang/rust:nightly-alpine AS build
 WORKDIR /src
 COPY . .
 
