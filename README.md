@@ -18,7 +18,7 @@ cargo run
 * `linux/amd64`
 ## Run the Docker Image
 ```sh
-docker run --name notificationlinebot -p 3000:3000 -e ACCESSTOKEN=<LINE_BOT_ACCESS_TOKEN> -d ghcr.io/kayxue/githubpushnotificationlinebotrust:latest
+docker run --name notificationlinebot -p 3000:3000 -e ACCESSTOKEN=<LINE_BOT_ACCESS_TOKEN> -d ghcr.io/kayxue/githubpushwebhooklinebotrustnightly:xitcanightly
 ```
 ## Contribution
 Contributions are welcome, and please follow [Code of conduct](https://www.rust-lang.org/policies/code-of-conduct)
