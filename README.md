@@ -1,6 +1,6 @@
-# GitHubPushNotificationLineBotRust
-A line bot which can send Github push webhook message to line.  
-[[繁體中文](https://blog.kayxue.xyz/posts/githubpushnotificationlinebotrust/)]
+# GitHubPushWebhookLineBotRust
+A line bot which can send Github push webhook message to line.
+[[繁體中文](https://blog.kayxue.xyz/posts/githubpushwebhooklinebotrust/)]
 ## Run Directly
 1. Clone the project
 2. Please prepare a .env file and put it in root of project directory
