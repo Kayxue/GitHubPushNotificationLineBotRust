@@ -2,10 +2,9 @@
 #![feature(unsized_const_params)]
 #![feature(error_reporter)]
 
-use dotenv::dotenv;
-use line_bot_sdk_rust::{
+use bot_sdk_line::{
     client::LINE,
-    line_messaging_api::{
+    messaging_api_line::{
         apis::MessagingApiApi,
         models::{
             flex_box::Layout,
@@ -16,6 +15,7 @@ use line_bot_sdk_rust::{
         },
     },
 };
+use dotenv::dotenv;
 use std::env;
 use xitca_web::{
     codegen::route,
@@ -78,10 +78,10 @@ async fn github(
             messages: vec![Message::FlexMessage(FlexMessage {
                 alt_text: format!("{} pushed his/her changes", commit.author.name).to_owned(),
                 contents: Box::new(FlexContainer::FlexBubble(FlexBubble {
-                    body: Some(Box::new(FlexBox{
+                    body: Some(Box::new(FlexBox {
                         r#type: Some("box".to_owned()),
-                        layout:Layout::Vertical,
-                        contents:vec![
+                        layout: Layout::Vertical,
+                        contents: vec![
                             FlexComponent::FlexText(FlexText {
                                 text: Some("Commit Pushed".to_owned()),
                                 weight: Some(Weight::Bold),
@@ -207,8 +207,8 @@ async fn github(
                                 ..Default::default()
                             }),
                         ],
-                    ..Default::default()
-                })),
+                        ..Default::default()
+                    })),
                     footer: Some(Box::new(FlexBox {
                         r#type: Some("box".to_owned()),
                         layout: Layout::Vertical,
