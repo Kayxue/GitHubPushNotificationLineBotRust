@@ -1,5 +1,6 @@
 # GitHubPushWebhookLineBotRust
 A line bot which can send Github push webhook message to line.
+
 [[繁體中文](https://blog.kayxue.xyz/posts/githubpushwebhooklinebotrust/)]
 > [!CAUTION]
 > If you want to test the version on this branch, make sure you have updated your rust toolchain to nightly build and be careful for possible rust bug.
